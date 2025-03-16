@@ -31,7 +31,7 @@ vim.opt.showmode = false
 vim.schedule(function()
   vim.opt.clipboard = ''
 end)
-vim.keymap.set('n', 'Y', '"+y$', { desc = 'Yank to system clipboard' })
+vim.keymap.set('v', 'Y', '"+y', { desc = 'Yank selection to system clipboard' })
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -159,15 +159,41 @@ require('lazy').setup({
 
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
-  --    {
-  --        'lewis6991/gitsigns.nvim',
-  --        config = function()
-  --            require('gitsigns').setup({
-  --                -- Your gitsigns configuration here
-  --            })
-  --        end,
-  --    }
-  --
+  {
+    'lewis6991/gitsigns.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    event = 'BufReadPre',
+    config = function()
+      require('gitsigns').setup {
+        signs = {
+          add = { text = '│' },
+          change = { text = '│' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+          untracked = { text = '┆' },
+        },
+        signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
+        numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
+        linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
+        word_diff = false, -- Toggle with `:Gitsigns toggle_word_diff`
+        current_line_blame = true, -- Show inline git blame
+        current_line_blame_opts = {
+          virt_text = true,
+          virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
+          delay = 500,
+          ignore_whitespace = false,
+        },
+        preview_config = {
+          border = 'rounded',
+          style = 'minimal',
+          relative = 'cursor',
+          row = 0,
+          col = 1,
+        },
+      }
+    end,
+  },
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`.
   --
@@ -1077,7 +1103,6 @@ vim.keymap.set('n', 'gr', '<cmd>lua require("telescope.builtin").lsp_references(
 
 -- 📝 Save file with Enter in normal mode
 vim.keymap.set('n', '<CR>', '<cmd>w<CR>', { desc = 'Save file' })
-
 -- 📦 Required Plugins (Lazy.nvim)
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
