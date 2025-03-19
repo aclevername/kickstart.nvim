@@ -941,6 +941,19 @@ require('lazy').setup({
 
   -- Run Go tests
   { 'vim-test/vim-test' },
+  { 'github/copilot.vim' },
+  {
+    'olimorris/codecompanion.nvim',
+    config = true,
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+  },
+  {
+    'mg979/vim-visual-multi',
+    branch = 'master',
+  },
   {
     'nvim-telescope/telescope-file-browser.nvim',
     dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
@@ -953,7 +966,7 @@ require('lazy').setup({
         extensions = {
           file_browser = {
             theme = 'ivy', -- Other themes: "dropdown", "cursor"
-            hijack_netrw = true, -- Replace netrw
+            hijack_netrw = false, -- Replace netrw
             grouped = true, -- Group folders at the top
             respect_gitignore = true,
             hidden = true, -- Show hidden files
@@ -1103,6 +1116,21 @@ vim.keymap.set('n', 'gr', '<cmd>lua require("telescope.builtin").lsp_references(
 
 -- 📝 Save file with Enter in normal mode
 vim.keymap.set('n', '<CR>', '<cmd>w<CR>', { desc = 'Save file' })
--- 📦 Required Plugins (Lazy.nvim)
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.opt_local.textwidth = 80 -- Hard wrap lines at 80 characters
+    vim.opt_local.formatoptions:append 't' -- Auto-wrap while typing
+    vim.opt_local.wrap = true -- Enable soft wrap (visual wrapping)
+    vim.opt_local.linebreak = true -- Break at word boundaries instead of mid-word
+  end,
+})
+
+vim.opt.wrap = false
+
+vim.opt.expandtab = true -- Convert tabs to spaces
+vim.opt.shiftwidth = 2 -- Number of spaces per indentation level
+vim.opt.tabstop = 2 -- Number of spaces per tab
+vim.opt.softtabstop = 2 -- Number of spaces per tab in insert mode
+vim.opt.smartindent = true -- Enable smart indentation
