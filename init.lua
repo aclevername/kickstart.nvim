@@ -1134,3 +1134,31 @@ vim.opt.shiftwidth = 2 -- Number of spaces per indentation level
 vim.opt.tabstop = 2 -- Number of spaces per tab
 vim.opt.softtabstop = 2 -- Number of spaces per tab in insert mode
 vim.opt.smartindent = true -- Enable smart indentation
+
+-- Stay in visual mode when indenting
+vim.keymap.set('v', '>', '>gv', { desc = 'Indent and reselect' })
+vim.keymap.set('v', '<', '<gv', { desc = 'Outdent and reselect' })
+
+-- Enable spell checking only in markdown files, ignore code blocks
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = 'en_us'
+    vim.opt_local.spellcapcheck = '' -- Disable capitalized word checking at line start
+  end,
+})
+
+-- Add cmp-spell source to completion menu
+require('lazy').setup {
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'f3fora/cmp-spell',
+    },
+    opts = function(_, opts)
+      opts.sources = opts.sources or {}
+      table.insert(opts.sources, { name = 'spell' })
+    end,
+  },
+}
