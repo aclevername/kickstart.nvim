@@ -873,23 +873,84 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- -- Simple and easy statusline.
+      -- --  You could remove this setup call if you don't like it,
+      -- --  and try some other statusline plugin
+      -- local statusline = require 'mini.statusline'
+      -- -- set use_icons to true if you have a Nerd Font
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
+      --
+      -- -- You can configure sections in the statusline by overriding their
+      -- -- default behavior. For example, here we set the section for
+      -- -- cursor location to LINE:COLUMN
+      -- ---@diagnostic disable-next-line: duplicate-set-field
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+    end,
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        options = {
+          theme = 'tokyonight',
+          section_separators = '',
+          component_separators = '',
+          icons_enabled = vim.g.have_nerd_font,
+        },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch' },
+          lualine_c = {
+            { 'filename', path = 1 },
+            {
+              'diagnostics',
+              sources = { 'nvim_diagnostic' },
+              sections = { 'error' }, -- Only show errors
+              symbols = { error = 'E:' },
+              colored = true,
+              update_in_insert = false,
+            },
+          },
+          lualine_x = {
+            {
+              function()
+                local diagnostics = vim.diagnostic.get(0, {
+                  severity = vim.diagnostic.severity.ERROR, -- Only get errors
+                })
+                if #diagnostics > 0 then
+                  table.sort(diagnostics, function(a, b)
+                    return a.lnum < b.lnum
+                  end)
+                  local diag = diagnostics[1]
+                  local line = diag.lnum + 1
+                  local message = diag.message:gsub('\n.*', '')
+                  return string.format('L%d: %s', line, message)
+                end
+                return ''
+              end,
+              color = { fg = '#ff5c57' }, -- Red color
+            },
+            'encoding',
+            'fileformat',
+            'filetype',
+          },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' },
+        },
+      }
+
+      -- Auto refresh lualine when diagnostics change
+      vim.api.nvim_create_autocmd({ 'DiagnosticChanged', 'BufEnter' }, {
+        callback = function()
+          require('lualine').refresh()
+        end,
+      })
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -1138,6 +1199,22 @@ vim.opt.smartindent = true -- Enable smart indentation
 -- Stay in visual mode when indenting
 vim.keymap.set('v', '>', '>gv', { desc = 'Indent and reselect' })
 vim.keymap.set('v', '<', '<gv', { desc = 'Outdent and reselect' })
+
+-- Enable spell checking only in markdown files, ignore code blocks
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = 'en_us'
+    vim.opt_local.spellcapcheck = '' -- Disable capitalized word checking at line start
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'DiagnosticChanged', 'BufEnter' }, {
+  callback = function()
+    require('lualine').refresh()
+  end,
+})
 
 -- Enable spell checking only in markdown files, ignore code blocks
 vim.api.nvim_create_autocmd('FileType', {
