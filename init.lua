@@ -953,6 +953,7 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'master',
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -979,9 +980,6 @@ require('lazy').setup({
 
   -- LSP for Go
   { 'neovim/nvim-lspconfig' },
-
-  -- Treesitter for Go syntax highlighting
-  { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
 
   -- Debugging (DAP) for Go
   { 'mfussenegger/nvim-dap' },
