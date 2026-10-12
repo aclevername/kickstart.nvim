@@ -955,7 +955,10 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     branch = 'master',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+    config = function(_, opts)
+      require('custom.treesitter_compat').setup()
+      require('nvim-treesitter.configs').setup(opts)
+    end,
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
